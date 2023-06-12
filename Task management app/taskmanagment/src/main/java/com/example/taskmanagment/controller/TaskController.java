@@ -41,7 +41,6 @@ public class TaskController extends AbstractController{
     }
     @GetMapping("/tasks/{id}")
     public TaskInfoDTO getTaskById(@PathVariable ("id") final long taskId, final HttpSession s){
-        //todo final
         final long userId = getLoggedId(s);
         return taskService.getTaskById(taskId, userId);
     }

@@ -22,28 +22,6 @@ public class UserControllerIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Mock
-    private UserService userService;
-
-    @InjectMocks
-    private UserController userController;
-
-//    @Test
-//    public void registerTest() throws Exception {
-//        this.mockMvc = MockMvcBuilders.standaloneSetup(userController).build();
-//
-//        // assuming you have a Jackson object mapper to convert RegisterDTO to JSON
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        RegisterDTO registerData = new RegisterDTO(); // populate with test data
-//
-//        when(userService.register(registerData)).thenReturn(new UserWithoutPassDTO()); // populate with expected return
-//
-//        this.mockMvc.perform(post("/users")
-//                        .content(objectMapper.writeValueAsString(registerData))
-//                        .contentType(MediaType.APPLICATION_JSON))
-//                .andExpect(status().isOk());
-//    }
-
     @Test
     public void testRegister() throws Exception {
         String registerDataJson = "{\"userName\":\"testuser\",\"email\":\"example1@email.com\",\"password\":\"strongPass*1\",\"confirmPassword\":\"strongPass*1\"}";
