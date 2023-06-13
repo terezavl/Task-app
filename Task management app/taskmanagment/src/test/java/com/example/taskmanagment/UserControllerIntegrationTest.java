@@ -13,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @AutoConfigureMockMvc
@@ -65,4 +66,49 @@ public class UserControllerIntegrationTest {
                         .content(loginDataJson))
                 .andExpect(MockMvcResultMatchers.status().isBadRequest());
     }
+    @Test
+    public void testLoginAccountNotFound() throws Exception {
+        String loginDataJson = "{\"email\":\"nonexistent@mail.com\",\"password\":\"password\"}";
+
+        mockMvc.perform(MockMvcRequestBuilders.post("/users/sign-in")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(loginDataJson))
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized());
+    }
+
+    @Test
+    public void testLogout() throws Exception {
+        //todo not working
+        // Login first
+        String loginDataJson = "{\"email\":\"example@mail.com\",\"password\":\"strongPass*1\"}";
+        mockMvc.perform(MockMvcRequestBuilders.post("/users/sign-in")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(loginDataJson))
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.userName").exists())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.email").exists())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.id").isNumber())
+                .andReturn();
+
+        // Get the session from the previous login request
+        String session = mockMvc.perform(MockMvcRequestBuilders.get("/users/session"))
+                .andReturn().getRequest().getSession().getId();
+
+        // Perform the logout with the obtained session
+        mockMvc.perform(MockMvcRequestBuilders.post("/users/sign-out")
+                        .sessionAttr("org.springframework.mock.web.MockHttpSession", session)
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(MockMvcResultHandlers.print()) // Print the response for debugging
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.content().string("Sign out was successful."));
+    }
+    @Test
+    public void testLogoutUnsuccessful() throws Exception {
+        mockMvc.perform(MockMvcRequestBuilders.post("/users/sign-out")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(MockMvcResultMatchers.status().isUnauthorized())
+                .andExpect(MockMvcResultMatchers.jsonPath("$.msg").value("You have to login first."));
+    }
+
+
 }

@@ -29,7 +29,7 @@ public class UserService extends AbstractService{
     public UserWithoutPassDTO login(final LoginDTO loginData) {
         final Optional<User> opt1= userRepository.findByEmail(loginData.getEmail());
         if(opt1.isEmpty()){
-            throw new NotFoundException("Wrong credentials.");
+            throw new UnauthorizedException("Wrong credentials.");
         }
         final User user= opt1.get();
         checkEncodedPassword(loginData.getPassword(), user.getPassword());
@@ -63,7 +63,7 @@ public class UserService extends AbstractService{
 
     public void checkEncodedPassword(String rawPass, String encodedPass){
         if(!encoder.matches(rawPass, encodedPass)){
-            throw new UnauthorizedException("Wrong password.");
+            throw new UnauthorizedException("Wrong credentials.");
         }
     }
     private void checkPasswordMatch(String pass, String confirmPass){

@@ -14,5 +14,6 @@ public class TaskInfoDTO {
     private UserWithoutPassDTO user;
     private String title;
     private String description;
-    private boolean isFinished;
+    private Boolean isFinished;
+    private int priority;
 }

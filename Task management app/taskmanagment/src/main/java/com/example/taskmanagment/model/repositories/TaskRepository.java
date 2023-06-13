@@ -15,6 +15,6 @@ import java.util.Optional;
         @Query(value = "SELECT * FROM tasks WHERE user_id = :userId AND is_finished= :isFinished", nativeQuery = true)
         Page<Task> findAllByUser(long userId, Pageable pageable, int isFinished);
         @Query(value = "SELECT * FROM tasks WHERE user_id = :userId AND is_finished= :isFinished", nativeQuery = true)
-        List<Task> findUnfinishedTasksByUser(long userId, int isFinished);
+        List<Task> findTasksByUser(long userId, int isFinished);
         Optional<Task> findTaskById(long id);
     }

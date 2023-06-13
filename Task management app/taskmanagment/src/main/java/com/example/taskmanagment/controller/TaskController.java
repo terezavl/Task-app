@@ -33,7 +33,7 @@ public class TaskController extends AbstractController{
         final long userId=getLoggedId(s);
         return taskService.editTask(userId,taskId, editData);
     }
-    @GetMapping("/users/tasks")
+    @GetMapping("/tasks")
     public Page<TaskWithoutOwnerDTO> getUserTasks( @RequestParam (defaultValue = "0") final int page,
                                                    @RequestParam (defaultValue = "10") final int size, final HttpSession s){
         final long userId=getLoggedId(s);
@@ -51,7 +51,7 @@ public class TaskController extends AbstractController{
         return ResponseEntity.ok("Task deleted successfully.");
     }
 
-    @GetMapping("/users/tasks/csv")
+    @GetMapping("/tasks/csv")
     public ResponseEntity<StreamingResponseBody> exportUnfinishedTasksCsv(final HttpSession session) {
         final long userId = getLoggedId(session);
         InputStream csvStream = taskService.exportUnfinishedTasks(userId);

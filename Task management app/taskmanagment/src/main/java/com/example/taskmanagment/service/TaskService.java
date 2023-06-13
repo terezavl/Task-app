@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
@@ -25,6 +26,9 @@ public class TaskService extends AbstractService{
     public TaskInfoDTO createTask(final long userId, final CreateTaskDTO createData) {
         final User user=findUserById(userId);
         final Task task = mapper.map(createData,Task.class);
+        if (createData.getPriority() != null ) {
+            task.setPriority(createData.getPriority());
+        }
         task.setUser(user);
         task.setIsFinished(false);
         taskRepository.save(task);
@@ -44,13 +48,16 @@ public class TaskService extends AbstractService{
         if (editData.getIsFinished() != null ) {
             task.setIsFinished(editData.getIsFinished());
         }
+        if (editData.getPriority() != null ) {
+            task.setPriority(editData.getPriority());
+        }
         taskRepository.save(task);
         return mapper.map(task, TaskInfoDTO.class);
     }
 
     public Page<TaskWithoutOwnerDTO> getUserTasks(final long id, final int page, final int size) {
         findUserById(id);
-        final Pageable pageable = PageRequest.of(page,size);
+        final Pageable pageable = PageRequest.of(page,size, Sort.by("priority"));
         return taskRepository.findAllByUser(id, pageable,0)
                 .map(task -> mapper.map(task, TaskWithoutOwnerDTO.class));
     }
@@ -62,7 +69,7 @@ public class TaskService extends AbstractService{
         return mapper.map(task, TaskInfoDTO.class);
     }
 
-    public Task findTaskById(final long id){
+    private Task findTaskById(final long id){
         return taskRepository.findTaskById(id).orElseThrow(() -> new NotFoundException("There is no such task."));
     }
     public void checkTaskOwner(final long userId, final long taskUserId){
@@ -79,7 +86,8 @@ public class TaskService extends AbstractService{
     }
     public InputStream exportUnfinishedTasks(final long userId) {
         findUserById(userId);
-        final List<Task> tasks = taskRepository.findUnfinishedTasksByUser(userId, 0);
+        final List<Task> tasks = taskRepository.findTasksByUser(userId, 0);
+        tasks.sort((t1, t2) -> t1.getPriority() - t2.getPriority());
         final ByteArrayOutputStream csvContent = FileUtil.writeTasksCSV(tasks);
         return new ByteArrayInputStream(csvContent.toByteArray());
     }

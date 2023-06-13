@@ -7,8 +7,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
 
@@ -29,10 +27,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 
 @ExtendWith(MockitoExtension.class)
 public class TaskServiceTest {
@@ -47,13 +42,13 @@ public class TaskServiceTest {
 
     @Test
     public void createTaskSuccessful() {
-        CreateTaskDTO createData = new CreateTaskDTO(TITLE,DESCRIPTION,false);
+        CreateTaskDTO createData = new CreateTaskDTO(TITLE,DESCRIPTION,1);
         User user = Util.getUser();
         Task task = Util.getTask();
         task.setUser(user);
 
         TaskInfoDTO expected = new TaskInfoDTO(TASK_ID, new UserWithoutPassDTO(user.getId(),user.getUserName(),user.getEmail()),
-                task.getTitle(), task.getDescription(), task.getIsFinished());
+                task.getTitle(), task.getDescription(), task.getIsFinished(), task.getPriority());
 
         when(userRepository.findUserById(USER_ID)).thenReturn(Optional.of(user));
         when(taskRepository.save(any(Task.class))).thenReturn(task);
@@ -66,7 +61,7 @@ public class TaskServiceTest {
     }
     @Test
     public void createTaskUnsuccessful() {
-        CreateTaskDTO createData = new CreateTaskDTO(TITLE,DESCRIPTION,false);
+        CreateTaskDTO createData = new CreateTaskDTO(TITLE,DESCRIPTION,1);
 
         when(userRepository.findUserById(USER_ID)).thenReturn(Optional.empty());
 
@@ -78,14 +73,15 @@ public class TaskServiceTest {
 
     @Test
     public void editTaskSuccessful() {
-        EditTaskDTO editData = new EditTaskDTO(TITLE, DESCRIPTION, false);
+        EditTaskDTO editData = new EditTaskDTO(TITLE, DESCRIPTION, false, 2);
         User user = Util.getUser();
         Task task = Util.getTask();
         task.setUser(user);
         TaskInfoDTO expectedTask = new TaskInfoDTO();
         expectedTask.setTitle(editData.getTitle());
         expectedTask.setDescription(editData.getDescription());
-        expectedTask.setFinished(editData.getIsFinished());
+        expectedTask.setIsFinished(editData.getIsFinished());
+        expectedTask.setPriority(editData.getPriority());
         expectedTask.setUser(getUserWithoutPass());
 
         when(userRepository.findUserById(USER_ID)).thenReturn(Optional.of(user));
@@ -100,7 +96,7 @@ public class TaskServiceTest {
     @Test
     public void testEditTaskUnsuccessful() {
         long taskId = 2;
-        EditTaskDTO editData = new EditTaskDTO(TITLE, DESCRIPTION, false);
+        EditTaskDTO editData = new EditTaskDTO(TITLE, DESCRIPTION, false,2);
 
         User user = Util.getUser();
 
@@ -118,14 +114,14 @@ public class TaskServiceTest {
     public void getUserTasksSuccessful() {
         int page = 1;
         int size = 10;
-        TaskWithoutOwnerDTO taskWithoutOwnerDTO = new TaskWithoutOwnerDTO(2, TITLE, DESCRIPTION);
+        TaskWithoutOwnerDTO taskWithoutOwnerDTO = new TaskWithoutOwnerDTO(2, TITLE, DESCRIPTION,1);
         List<Task> tasks = new ArrayList<>();
         User user = Util.getUser();
         Task task = Util.getTask();
         task.setUser(user);
         tasks.add(task);
         Page<Task> taskPage = new PageImpl<>(tasks);
-        Pageable pageable = PageRequest.of(page,size);
+        Pageable pageable = PageRequest.of(page,size, Sort.by("priority"));
 
         when(userRepository.findUserById(USER_ID)).thenReturn(Optional.of(user));
         when(taskRepository.findAllByUser(USER_ID, pageable, 0)).thenReturn(taskPage);
@@ -145,7 +141,8 @@ public class TaskServiceTest {
         expected.setId(TASK_ID);
         expected.setTitle(TITLE);
         expected.setDescription(DESCRIPTION);
-        expected.setFinished(false);
+        expected.setIsFinished(false);
+        expected.setPriority(1);
 
         when(userRepository.findUserById(USER_ID)).thenReturn(Optional.of(user));
         when(taskRepository.findTaskById(TASK_ID)).thenReturn(Optional.of(task));
@@ -203,14 +200,14 @@ public class TaskServiceTest {
     public void getUnfinishedTasksSuccessful(){
         User user = Util.getUser();
         List<Task> tasks = Arrays.asList(
-                new Task(1L, "Task 1", "Description 1", false, user),
-                new Task(2L, "Task 2", "Description 2", false, user)
+                new Task(1, "Task 1", "Description 1", false,1, user),
+                new Task(2, "Task 2", "Description 2", false,2, user)
         );
 
         when(userRepository.findUserById(USER_ID)).thenReturn(Optional.of(user));
-        when(taskRepository.findUnfinishedTasksByUser(USER_ID, 0)).thenReturn(tasks);
+        when(taskRepository.findTasksByUser(USER_ID, 0)).thenReturn(tasks);
 
-        InputStream expected = new ByteArrayInputStream("TaskId;Title;Description;IsFinished\n1;Task 1;Description 1;false\n2;Task 2;Description 2;false\n".getBytes());
+        InputStream expected = new ByteArrayInputStream("TaskId;Title;Description;Priority;IsFinished\n1;Task 1;Description 1;1;false\n2;Task 2;Description 2;2;false\n".getBytes());
 
         InputStream result = taskService.exportUnfinishedTasks(USER_ID);
 
@@ -237,16 +234,16 @@ public class TaskServiceTest {
         User user = Util.getUser();
 
         when(userRepository.findUserById(USER_ID)).thenReturn(Optional.of(user));
-        when(taskRepository.findUnfinishedTasksByUser(USER_ID, 0)).thenReturn(Collections.emptyList());
+        when(taskRepository.findTasksByUser(USER_ID, 0)).thenReturn(Collections.emptyList());
 
-        InputStream expectedInputStream = new ByteArrayInputStream("TaskId;Title;Description;IsFinished\n".getBytes());
+        InputStream expectedInputStream = new ByteArrayInputStream("TaskId;Title;Description;Priority;IsFinished\n".getBytes());
 
         InputStream result = taskService.exportUnfinishedTasks(USER_ID);
 
         Assertions.assertThat(result).hasSameContentAs(expectedInputStream);
 
         verify(userRepository, times(1)).findUserById(USER_ID);
-        verify(taskRepository, times(1)).findUnfinishedTasksByUser(USER_ID, 0);
+        verify(taskRepository, times(1)).findTasksByUser(USER_ID, 0);
 
         IOUtils.closeQuietly(expectedInputStream);
         IOUtils.closeQuietly(result);

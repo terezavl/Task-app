@@ -13,10 +13,10 @@ public class FileUtil {
         ByteArrayOutputStream csvContent = new ByteArrayOutputStream();
         try (CSVWriter csvWriter = new CSVWriter(
                 new OutputStreamWriter(csvContent), ';', CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.NO_ESCAPE_CHARACTER, "\n")) {
-            csvWriter.writeNext(new String[] { "TaskId", "Title", "Description", "IsFinished" });
+            csvWriter.writeNext(new String[] { "TaskId", "Title", "Description", "Priority", "IsFinished" });
             for (Task task : tasks) {
                 csvWriter.writeNext(new String[] { String.valueOf(task.getId()), task.getTitle(), task.getDescription(),
-                        String.valueOf(task.getIsFinished()) });
+                        String.valueOf(task.getPriority()) , String.valueOf(task.getIsFinished()) });
             }
         } catch (IOException e) {
             System.out.println("Problem writing to file");

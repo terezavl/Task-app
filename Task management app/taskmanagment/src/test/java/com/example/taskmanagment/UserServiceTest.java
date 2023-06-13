@@ -195,7 +195,7 @@ public class UserServiceTest {
 
         when(userRepository.findByEmail(loginData.getEmail())).thenReturn(Optional.empty());
 
-        NotFoundException exception = assertThrows(NotFoundException.class, () -> {
+        UnauthorizedException exception = assertThrows(UnauthorizedException.class, () -> {
             userService.login(loginData);
         });
         assertEquals("Wrong credentials.",exception.getMessage());
@@ -226,7 +226,7 @@ public class UserServiceTest {
 
         UnauthorizedException exception = assertThrows(UnauthorizedException.class,
                 () -> userService.deleteAccount(USER_ID, passDTO));
-        assertEquals("Wrong password.", exception.getMessage());
+        assertEquals("Wrong credentials.", exception.getMessage());
 
         verify(userRepository, never()).deleteUserById(USER_ID);
     }

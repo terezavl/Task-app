@@ -32,6 +32,7 @@ public abstract class Util {
         task.setDescription(DESCRIPTION);
         task.setIsFinished(false);
         task.setId(TASK_ID);
+        task.setPriority(1);
         return task;
     }
 

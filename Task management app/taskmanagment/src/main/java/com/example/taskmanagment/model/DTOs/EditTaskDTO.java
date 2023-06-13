@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.validator.constraints.Range;
 
 @Getter
 @Setter
@@ -17,4 +18,6 @@ public class EditTaskDTO {
     @Size(max = 2000, message = "Description can't be longer than {max} characters")
     private String description;
     private Boolean isFinished;
+    @Range(min = 1, max = 3, message = "Priority must be between 1 and 3")
+    private Integer priority;
 }

@@ -36,7 +36,8 @@ public class UserController extends AbstractController{
         return userService.editUser(userId, editData);
     }
     @DeleteMapping("/users")
-    public ResponseEntity<String> deleteAccount(final HttpSession s, final UserPassDTO passDTO) {
+    public ResponseEntity<String> deleteAccount(@Valid @RequestBody final UserPassDTO passDTO, final HttpSession s) {
+        //todo check
         final long loggedId=getLoggedId(s);
         userService.deleteAccount(loggedId, passDTO);
         s.invalidate();
