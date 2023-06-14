@@ -3,8 +3,8 @@ package com.example.taskmanagment.service;
 import com.example.taskmanagment.model.DTOs.*;
 import com.example.taskmanagment.model.entities.User;
 import com.example.taskmanagment.model.exceptions.BadRequestException;
-import com.example.taskmanagment.model.exceptions.NotFoundException;
 import com.example.taskmanagment.model.exceptions.UnauthorizedException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -55,6 +55,7 @@ public class UserService extends AbstractService{
         userRepository.save(user);
         return mapper.map(user, UserWithoutPassDTO.class);
     }
+    @Transactional
     public void deleteAccount(final long loggedId, UserPassDTO passDTO) {
         final User user = findUserById(loggedId);
         checkEncodedPassword(passDTO.getPassword(), user.getPassword());

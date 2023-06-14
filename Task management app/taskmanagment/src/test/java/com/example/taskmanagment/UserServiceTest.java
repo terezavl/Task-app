@@ -4,14 +4,10 @@ import static com.example.taskmanagment.Util.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-
-import java.util.Collections;
 import java.util.Optional;
-
 import com.example.taskmanagment.model.DTOs.*;
 import com.example.taskmanagment.model.entities.User;
 import com.example.taskmanagment.model.exceptions.BadRequestException;
-import com.example.taskmanagment.model.exceptions.NotFoundException;
 import com.example.taskmanagment.model.exceptions.UnauthorizedException;
 import com.example.taskmanagment.model.repositories.UserRepository;
 import com.example.taskmanagment.service.UserService;

@@ -7,10 +7,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @SpringBootApplication
-public class TaskmanagmentApplication {
+public class TaskmanagementApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(TaskmanagmentApplication.class, args);
+		SpringApplication.run(TaskmanagementApplication.class, args);
 	}
 	@Bean
 	public ModelMapper modelMapper(){

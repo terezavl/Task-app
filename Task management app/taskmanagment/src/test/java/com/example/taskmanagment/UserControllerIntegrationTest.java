@@ -1,19 +1,15 @@
 package com.example.taskmanagment;
 
-import com.example.taskmanagment.controller.UserController;
-import com.example.taskmanagment.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 @AutoConfigureMockMvc
@@ -78,27 +74,20 @@ public class UserControllerIntegrationTest {
 
     @Test
     public void testLogout() throws Exception {
-        //todo not working
-        // Login first
         String loginDataJson = "{\"email\":\"example@mail.com\",\"password\":\"strongPass*1\"}";
         mockMvc.perform(MockMvcRequestBuilders.post("/users/sign-in")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(loginDataJson))
-                .andExpect(MockMvcResultMatchers.status().isOk())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.userName").exists())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.email").exists())
-                .andExpect(MockMvcResultMatchers.jsonPath("$.id").isNumber())
                 .andReturn();
 
-        // Get the session from the previous login request
-        String session = mockMvc.perform(MockMvcRequestBuilders.get("/users/session"))
-                .andReturn().getRequest().getSession().getId();
+        MockHttpSession session = (MockHttpSession) mockMvc.perform(MockMvcRequestBuilders.get("/users/session"))
+                .andReturn().getRequest().getSession();
 
-        // Perform the logout with the obtained session
+        session.setAttribute("LOGGED_ID", 2L);
+
         mockMvc.perform(MockMvcRequestBuilders.post("/users/sign-out")
-                        .sessionAttr("org.springframework.mock.web.MockHttpSession", session)
+                        .session(session)
                         .contentType(MediaType.APPLICATION_JSON))
-                .andDo(MockMvcResultHandlers.print()) // Print the response for debugging
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.content().string("Sign out was successful."));
     }

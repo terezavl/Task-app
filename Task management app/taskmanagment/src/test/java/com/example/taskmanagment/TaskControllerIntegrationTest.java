@@ -18,6 +18,7 @@ public class TaskControllerIntegrationTest {
 
     @Test
     public void testCreateTask() throws Exception {
+        //todo check
         // Login first
         String loginDataJson = "{\"email\":\"example@mail.com\",\"password\":\"strongPass*1\"}";
         mockMvc.perform(MockMvcRequestBuilders.post("/users/sign-in")
@@ -45,4 +46,3 @@ public class TaskControllerIntegrationTest {
                 .andExpect(MockMvcResultMatchers.jsonPath("$.isFinished").value(false));
     }
 }
-

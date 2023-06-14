@@ -111,7 +111,7 @@ public class TaskServiceTest {
     }
 
     @Test
-    public void getUserTasksSuccessful() {
+    public void getUserUnfinishedTasksSuccessful() {
         int page = 1;
         int size = 10;
         TaskWithoutOwnerDTO taskWithoutOwnerDTO = new TaskWithoutOwnerDTO(2, TITLE, DESCRIPTION,1);

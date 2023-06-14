@@ -18,7 +18,6 @@ public class CreateTaskDTO {
     private String title;
     @Size(max = 2000, message = "Description can't be longer than 2000 characters")
     private String description;
-//    private Boolean isFinished;
     @Range(min = 1, max = 3, message = "Priority must be between 1 and 3")
     private Integer priority;
 }

@@ -29,6 +29,9 @@ public class TaskService extends AbstractService{
         if (createData.getPriority() != null ) {
             task.setPriority(createData.getPriority());
         }
+        else{
+            task.setPriority(2);
+        }
         task.setUser(user);
         task.setIsFinished(false);
         taskRepository.save(task);
